@@ -1,28 +1,25 @@
 import logging
+import os
+from dotenv import load_dotenv
 from .providers.base_provider import ProductInfo
 from .providers.mercadolibre import MercadoLibreProvider
+from .providers.mock_provider import MockProvider
+
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-# Registro de providers disponibles — para agregar uno nuevo, solo sumarlo acá
-PROVIDERS = [
-    MercadoLibreProvider(),
-]
-
 
 def get_provider_for_url(url: str):
-    """Retorna el provider adecuado para una URL dada."""
-    for provider in PROVIDERS:
+    use_mock = os.getenv("USE_MOCK", "False").lower() == "true"
+    providers = [MockProvider() if use_mock else MercadoLibreProvider()]
+    for provider in providers:
         if provider.can_handle(url):
             return provider
     raise ValueError(f"No hay ningún provider disponible para la URL: {url}")
 
 
 def get_product_info(url: str) -> ProductInfo:
-    """
-    Punto de entrada principal para obtener info de precio de cualquier URL.
-    El sistema elige automáticamente el provider correcto.
-    """
     provider = get_provider_for_url(url)
     item_id = provider.extract_item_id(url)
     logger.info(
