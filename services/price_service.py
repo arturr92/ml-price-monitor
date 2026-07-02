@@ -1,3 +1,4 @@
+from .logger import setup_logger
 import logging
 import os
 from dotenv import load_dotenv
@@ -7,7 +8,7 @@ from .providers.mock_provider import MockProvider
 
 load_dotenv()
 
-logger = logging.getLogger(__name__)
+logger = setup_logger(__name__)
 
 
 def get_provider_for_url(url: str):

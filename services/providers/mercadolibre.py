@@ -6,7 +6,8 @@ from datetime import datetime
 from time import sleep
 from .base_provider import BaseProvider, ProductInfo
 
-logger = logging.getLogger(__name__)
+from ..logger import setup_logger
+logger = setup_logger(__name__)
 
 ML_API_BASE = "https://api.mercadolibre.com"
 REQUEST_TIMEOUT = 10      # segundos
