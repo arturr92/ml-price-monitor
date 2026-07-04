@@ -6,3 +6,9 @@ from .product_repository import (
     create_product, get_active_products,
     get_product_by_id, deactivate_product
 )
+
+from .product_repository import (
+    create_product, get_active_products,
+    get_product_by_id, deactivate_product,
+    validate_user_alert_channel
+)

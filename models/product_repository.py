@@ -57,3 +57,22 @@ def deactivate_product(db: Session, product_id: int) -> bool:
     product.active = False
     db.commit()
     return True
+
+
+def validate_user_alert_channel(db: Session, user_id: int, alert_channel: str) -> None:
+    """
+    Valida que el usuario tenga configurado el dato de contacto
+    necesario para el canal de alerta elegido.
+    Lanza ValueError si falta el dato requerido.
+    """
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise ValueError(f"No existe un usuario con id={user_id}")
+
+    if alert_channel in ("email", "both") and not user.email:
+        raise ValueError(
+            "El canal email requiere que el usuario tenga un email configurado")
+
+    if alert_channel in ("telegram", "both") and not user.telegram_chat_id:
+        raise ValueError(
+            "El canal telegram requiere que el usuario tenga un telegram_chat_id configurado")
