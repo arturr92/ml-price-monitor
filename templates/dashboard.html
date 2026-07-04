@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — ML Price Monitor{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📊 Productos monitoreados</h2>
+    <a href="/add-product" class="btn btn-primary">+ Agregar producto</a>
+</div>
+
+{% if products %}
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Producto</th>
+                    <th>Precio actual</th>
+                    <th>Precio objetivo</th>
+                    <th>Canal</th>
+                    <th>Estado</th>
+                    <th>Última consulta</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td>
+                        <a href="{{ p.url }}" target="_blank" class="text-decoration-none fw-bold">
+                            {{ p.name }}
+                        </a>
+                    </td>
+                    <td>
+                        {% if p.current_price %}
+                            {% if p.current_price <= p.target_price %}
+                                <span class="price-below">
+                                    ${{ "{:,.0f}".format(p.current_price) }}
+                                </span>
+                            {% else %}
+                                <span class="price-above">
+                                    ${{ "{:,.0f}".format(p.current_price) }}
+                                </span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">Sin datos</span>
+                        {% endif %}
+                    </td>
+                    <td>${{ "{:,.0f}".format(p.target_price) }}</td>
+                    <td>
+                        {% if p.alert_channel == "email" %}
+                            <span class="badge badge-email">📧 Email</span>
+                        {% elif p.alert_channel == "telegram" %}
+                            <span class="badge badge-telegram">✈️ Telegram</span>
+                        {% else %}
+                            <span class="badge badge-both">📧✈️ Ambos</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if p.alert_sent %}
+                            <span class="badge bg-success">✓ Alerta enviada</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Monitoreando</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted small">
+                        {% if p.last_checked %}
+                            {{ p.last_checked.strftime("%d/%m %H:%M") }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="/product/{{ p.id }}" class="btn btn-sm btn-outline-primary">
+                            Ver historial
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <h4 class="text-muted">No hay productos monitoreados todavía</h4>
+        <p class="text-muted">Agregá tu primer producto para empezar a monitorear precios</p>
+        <a href="/add-product" class="btn btn-primary">+ Agregar producto</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
