@@ -1,3 +1,4 @@
+from routes.history import history_bp
 from flask import Flask
 from dotenv import load_dotenv
 from routes.dashboard import dashboard_bp
@@ -11,6 +12,7 @@ app.secret_key = __import__('os').getenv("SECRET_KEY", "dev-secret-key")
 # Registrar blueprints
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(products_bp)
+app.register_blueprint(history_bp)
 
 if __name__ == "__main__":
     app.run(debug=True)

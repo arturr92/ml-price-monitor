@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} — Historial{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a href="/dashboard" class="text-decoration-none text-muted">← Dashboard</a>
+        <h2 class="mt-1">{{ product.name }}</h2>
+    </div>
+    <div class="text-end">
+        <span class="text-muted small">Precio objetivo</span>
+        <div class="fs-4 fw-bold text-primary">${{ "{:,.0f}".format(product.target_price) }}</div>
+    </div>
+</div>
+
+<div class="row g-4">
+
+    <!-- Gráfico -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">📈 Evolución de precio</h5>
+            </div>
+            <div class="card-body">
+                {% if prices %}
+                <canvas id="priceChart" height="100"></canvas>
+                {% else %}
+                <div class="text-center py-5 text-muted">
+                    <p>No hay datos de precio todavía.</p>
+                    <p class="small">El scheduler actualizará los precios automáticamente.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Historial de precios -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">🕐 Últimas consultas</h5>
+            </div>
+            <div class="card-body p-0">
+                {% if history %}
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Precio</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for h in history %}
+                        <tr>
+                            <td>
+                                {% if h.price <= product.target_price %}
+                                    <span class="text-success fw-bold">${{ "{:,.0f}".format(h.price) }}</span>
+                                {% else %}
+                                    <span class="text-danger">${{ "{:,.0f}".format(h.price) }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted small">
+                                {{ h.checked_at.strftime("%d/%m/%Y %H:%M") }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center py-4 text-muted">Sin registros todavía</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Alertas enviadas -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">🔔 Alertas enviadas</h5>
+            </div>
+            <div class="card-body p-0">
+                {% if alerts %}
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Precio</th>
+                            <th>Canal</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for a in alerts %}
+                        <tr>
+                            <td class="text-success fw-bold">${{ "{:,.0f}".format(a.price_at_alert) }}</td>
+                            <td>
+                                {% if a.channel_used == "email" %}
+                                    <span class="badge" style="background:#2E5C8A">📧 Email</span>
+                                {% elif a.channel_used == "telegram" %}
+                                    <span class="badge" style="background:#0088cc">✈️ Telegram</span>
+                                {% else %}
+                                    <span class="badge" style="background:#6f42c1">📧✈️ Ambos</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted small">
+                                {{ a.sent_at.strftime("%d/%m/%Y %H:%M") }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center py-4 text-muted">Sin alertas enviadas todavía</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if prices %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('priceChart').getContext('2d');
+    const targetPrice = {{ product.target_price }};
+    const prices = {{ prices | tojson }};
+    const labels = {{ labels | tojson }};
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Precio actual',
+                    data: prices,
+                    borderColor: '#2E5C8A',
+                    backgroundColor: 'rgba(46, 92, 138, 0.1)',
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                },
+                {
+                    label: 'Precio objetivo',
+                    data: Array(labels.length).fill(targetPrice),
+                    borderColor: '#28a745',
+                    borderDash: [6, 3],
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => `$${ctx.parsed.y.toLocaleString('es-AR')}`
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    ticks: {
+                        callback: val => `$${val.toLocaleString('es-AR')}`
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}
