@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Agregar producto — ML Price Monitor{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">➕ Agregar producto a monitorear</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="/add-product">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nombre del producto</label>
+                        <input type="text" name="name" class="form-control"
+                               placeholder="Ej: Notebook Lenovo IdeaPad" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">URL de Mercado Libre</label>
+                        <input type="url" name="url" class="form-control"
+                               placeholder="https://articulo.mercadolibre.com.ar/MLA-..." required>
+                        <div class="form-text">Pegá la URL completa del producto en ML</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Precio objetivo ($)</label>
+                        <input type="number" name="target_price" class="form-control"
+                               placeholder="Ej: 150000" min="1" step="any" required>
+                        <div class="form-text">
+                            Te alertamos cuando el precio baje de este valor
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Canal de alerta</label>
+                        <select name="alert_channel" class="form-select" required>
+                            <option value="" disabled selected>Seleccioná un canal</option>
+                            <option value="email">📧 Email</option>
+                            <option value="telegram">✈️ Telegram</option>
+                            <option value="both">📧✈️ Ambos</option>
+                        </select>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            Agregar producto
+                        </button>
+                        <a href="/dashboard" class="btn btn-outline-secondary">
+                            Cancelar
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
