@@ -12,3 +12,5 @@ from .product_repository import (
     get_product_by_id, deactivate_product,
     validate_user_alert_channel
 )
+
+from .alert_repository import register_alert_sent, should_send_alert, get_alerts_sent
