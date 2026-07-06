@@ -196,6 +196,8 @@ La aplicación está deployada y accesible en:
 
 > Nota: el deploy actual corre con datos simulados (MockProvider) mientras se resuelve el acceso a la API oficial de Mercado Libre. La arquitectura está preparada para conectar precios reales con un cambio de configuración.
 
+---
+
 ## 👨‍💻 Autor
 
 **Arturo Gonzalez**
